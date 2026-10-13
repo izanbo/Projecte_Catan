@@ -17,4 +17,10 @@ public class Vertex {
 
     @Column(nullable = false)
     private int codi;
+
+    @Column(nullable = false)
+    private double x;
+
+    @Column(nullable = false)
+    private double y;
 }
