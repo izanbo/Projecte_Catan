@@ -25,6 +25,7 @@ public class Hexagon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    // TODO: validacio: codi únic per partida
     @Column(nullable = false)
     private int codi;
 
@@ -45,6 +46,7 @@ public class Hexagon {
     @JoinColumn(name = "partida_id", nullable = false)
     private Partida partida;
 
+    // Validar
     @OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HexagonVertex> vertexs = new ArrayList<>();
 }

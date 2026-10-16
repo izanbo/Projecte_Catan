@@ -9,4 +9,7 @@ public class Main {
         System.out.println("SessionFactory creada correctament!");
         HibernateUtil.shutdown();
     }
+
+    
+
 }

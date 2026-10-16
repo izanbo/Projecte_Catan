@@ -22,4 +22,5 @@ public abstract class Construccio {
     @ManyToOne(optional = false)
     @JoinColumn(name = "propietari_id", nullable = false)
     private Jugador propietari;
+    
 }
