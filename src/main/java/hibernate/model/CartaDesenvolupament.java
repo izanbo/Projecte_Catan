@@ -26,7 +26,7 @@ public class CartaDesenvolupament {
 
     @Column(nullable = false)
     private boolean usada;
-
+    // TODO: afegir validacio
     @Column(name = "ronda_compra")
     private Integer rondaCompra;
 

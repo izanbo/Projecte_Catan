@@ -45,15 +45,15 @@ public class Partida {
     @Column(name = "daus_tirats", nullable = false)
     private boolean dausTirats;
 
-    @Column(name = "lladre_pendent", nullable = false)
-    private boolean lladrePendent;
+    @Column(name = "lladre", nullable = true)
+    private boolean lladre;
 
     @ManyToOne
-    @JoinColumn(name = "guanyador_id")
+    @JoinColumn(name = "guanyador_id", nullable = true)
     private Jugador guanyador;
 
     @ManyToOne
-    @JoinColumn(name = "jugador_actiu_id")
+    @JoinColumn(name = "jugador_actiu_id", nullable = true)
     private Jugador jugadorActiu;
 
     @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -64,4 +64,14 @@ public class Partida {
 
     @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartaDesenvolupament> cartes = new ArrayList<>();
+
+    public void IniciarPartida() {
+        this.estat = EstatPartida.PREPARACIO;
+        this.dataInici = new Date(System.currentTimeMillis());
+        this.ronda = 1;
+        this.ultimaTirada = 0;
+        this.puntsPerGuanyar = 10; // Valor per defecte, es pot canviar segons les regles del joc
+        this.dausTirats = false;
+        this.lladre = false;
+    }
 }

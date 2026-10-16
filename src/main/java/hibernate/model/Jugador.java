@@ -48,4 +48,7 @@ public class Jugador {
 
     @OneToMany(mappedBy = "propietari")
     private List<Construccio> construccions = new ArrayList<>();
+
+    // Poner cartas mappedBy jugador
+
 }
