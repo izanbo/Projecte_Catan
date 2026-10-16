@@ -1,8 +1,11 @@
 package hibernate.model;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import hibernate.enums.EstatPartida;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +13,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -41,4 +47,21 @@ public class Partida {
 
     @Column(name = "lladre_pendent", nullable = false)
     private boolean lladrePendent;
+
+    @ManyToOne
+    @JoinColumn(name = "guanyador_id")
+    private Jugador guanyador;
+
+    @ManyToOne
+    @JoinColumn(name = "jugador_actiu_id")
+    private Jugador jugadorActiu;
+
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Jugador> jugadors = new ArrayList<>();
+
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Hexagon> hexagons = new ArrayList<>();
+
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartaDesenvolupament> cartes = new ArrayList<>();
 }
