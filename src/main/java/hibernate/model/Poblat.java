@@ -6,4 +6,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "poblat")
 public class Poblat extends Assentament {
+
+    public Poblat(int id, Jugador propietari) {
+        super(id, propietari);
+    }
 }

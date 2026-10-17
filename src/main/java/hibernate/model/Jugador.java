@@ -49,6 +49,94 @@ public class Jugador {
     @OneToMany(mappedBy = "propietari")
     private List<Construccio> construccions = new ArrayList<>();
 
-    // Poner cartas mappedBy jugador
+    @OneToMany(mappedBy = "jugador")
+    private List<Carta> cartas = new ArrayList<>();
 
+    public Jugador(int id, String nom, ColorJugador color, int ordreTorn, int cavallersJugats, Partida partida,
+            List<RecursJugador> recursos, List<Construccio> construccions, List<Carta> cartas) {
+        this.id = id;
+        this.nom = nom;
+        this.color = color;
+        this.ordreTorn = ordreTorn;
+        this.cavallersJugats = cavallersJugats;
+        this.partida = partida;
+        this.recursos = recursos;
+        this.construccions = construccions;
+        this.cartas = cartas;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public ColorJugador getColor() {
+        return color;
+    }
+
+    public void setColor(ColorJugador color) {
+        this.color = color;
+    }
+
+    public int getOrdreTorn() {
+        return ordreTorn;
+    }
+
+    public void setOrdreTorn(int ordreTorn) {
+        this.ordreTorn = ordreTorn;
+    }
+
+    public int getCavallersJugats() {
+        return cavallersJugats;
+    }
+
+    public void setCavallersJugats(int cavallersJugats) {
+        this.cavallersJugats = cavallersJugats;
+    }
+
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
+    }
+
+    public List<RecursJugador> getRecursos() {
+        return recursos;
+    }
+
+    public void setRecursos(List<RecursJugador> recursos) {
+        this.recursos = recursos;
+    }
+
+    public List<Construccio> getConstruccions() {
+        return construccions;
+    }
+
+    public void setConstruccions(List<Construccio> construccions) {
+        this.construccions = construccions;
+    }
+
+    public List<Carta> getCartas() {
+        return cartas;
+    }
+
+    public void setCartas(List<Carta> cartas) {
+        this.cartas = cartas;
+    }
+
+    
+    
 }

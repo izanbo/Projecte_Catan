@@ -6,18 +6,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-import hibernate.Main;
+import hibernate.enums.TipusTerreny;
 import hibernate.model.Aresta;
 import hibernate.model.Hexagon;
+import hibernate.model.HexagonVertex;
 import hibernate.model.Vertex;
 
 public class HibernateUtil {
@@ -42,23 +45,24 @@ public class HibernateUtil {
         getSessionFactory().close();
     }
 
-    private static void carregarDades() {
+    public static void carregarDades() {
         try (Session session = getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                // 1) Entitats independents (sense FK)
-                Map<String, Hexagon> categories = carregarHexagons(session);
-                Map<String, Vertex> plataformes = carregarVertexs(session);
-                Map<String, Aresta> estudis = carregarArestes(session);
+                // 1) Vèrtexs (54)
+                Map<Integer, Vertex> vertexs = carregarVertexs(session);
 
-                // 2) Entitats amb FK cap a les anteriors (N:1) + la seva 1:1
-                Map<String, Videojoc> videojocs = carregarVideojocs(session, estudis);
+                // 2) Hexàgons (19)
+                Map<Integer, Hexagon> hexagons = carregarHexagons(session);
 
-                // 3) Fitxers de RELACIÓ: només enllacen entitats que ja existeixen
-                int nmPura = carregarVideojocCategoria(videojocs, categories);
-                int nmAtributs = carregarLlancaments(videojocs, plataformes);
+                // 3) HexagonVertex (114) -> enllaça hexàgons i vèrtexs
+                carregarHexagonVertex(session, hexagons, vertexs);
+
+                // 4) Arestes (72) -> enllaça dos vèrtexs
+                carregarArestes(session, vertexs);
 
                 tx.commit();
+                System.out.println("Tauler carregat correctament!");
             } catch (RuntimeException e) {
                 if (tx.isActive()) {
                     tx.rollback();
@@ -69,98 +73,161 @@ public class HibernateUtil {
         }
     }
 
-    private static Map<String, Hexagon> carregarHexagons(Session session) {
-        List<String[]> files = llegirCsv("hexagons.csv");
-        Map<String, Hexagon> hexagons = new LinkedHashMap<>();
-
-        for (String[] fila : files) { // 1a passada: crear-les totes
-            hexagons.put(fila[0], new Hexagon(fila[0]));
-        }
-        for (String[] fila : files) { // 2a passada: enllaçar amb el pare
-            if (!fila[1].isEmpty()) {
-                Hexagon pare = obtenir(hexagons, fila[1], "hexagons.csv");
-                pare.afegirFilla(hexagons.get(fila[0]));
-            }
-        }
-        for (Hexagon c : hexagons.values()) { // persist de les ARRELS: cascade a les filles
-            if (c.getPare() == null) {
-                session.persist(c);
-            }
-        }
-        return hexagons;
-    }
-
-    private static Map<String, Vertex> carregarVertexs(Session session) {
+    private static Map<Integer, Vertex> carregarVertexs(Session session) {
         List<String[]> files = llegirCsv("vertexs.csv");
-        Map<String, Vertex> vertexs = new LinkedHashMap<>();
+        Map<Integer, Vertex> vertexs = new HashMap<>();
 
-        for (String[] fila : files) { // 1a passada: crear-les totes
-            vertexs.put(fila[0], new Vertex(fila[0]));
+        for (String[] fila : files) {
+            int codi = Integer.parseInt(fila[0]);
+            double x = Double.parseDouble(fila[1]);
+            double y = Double.parseDouble(fila[2]);
+
+            Vertex v = new Vertex();
+            v.setCodi(codi);
+            v.setX(x);
+            v.setY(y);
+
+            session.persist(v);
+            vertexs.put(codi, v);
         }
-        for (String[] fila : files) { // 2a passada: enllaçar amb el pare
-            if (!fila[1].isEmpty()) {
-                Vertex pare = obtenir(vertexs, fila[1], "vertexs.csv");
-                pare.afegirFilla(vertexs.get(fila[0]));
-            }
-        }
-        for (Vertex c : vertexs.values()) { // persist de les ARRELS: cascade a les filles
-            if (c.getPare() == null) {
-                session.persist(c);
-            }
-        }
+        System.out.println("Carregats " + vertexs.size() + " vèrtexs.");
         return vertexs;
     }
 
-    private static Map<String, Aresta> carregarArestes(Session session) {
-        List<String[]> files = llegirCsv("arestes.csv");
-        Map<String, Aresta> arestes = new LinkedHashMap<>();
-
-        for (String[] fila : files) { // 1a passada: crear-les totes
-            arestes.put(fila[0], new Aresta(fila[0]));
-        }
-        for (String[] fila : files) { // 2a passada: enllaçar amb el pare
-            if (!fila[1].isEmpty()) {
-                Aresta pare = obtenir(arestes, fila[1], "arestes.csv");
-                pare.afegirFilla(arestes.get(fila[0]));
-            }
-        }
-        for (Aresta c : arestes.values()) { // persist de les ARRELS: cascade a les filles
-            if (c.getPare() == null) {
-                session.persist(c);
-            }
-        }
-        return arestes;
-    }
-
-    private static Map<String, Hexagon> carregarHexagons(Session session) {
+    private static Map<Integer, Hexagon> carregarHexagons(Session session) {
         List<String[]> files = llegirCsv("hexagons.csv");
-        Map<String, Hexagon> hexagons = new LinkedHashMap<>();
+        Map<Integer, Hexagon> hexagons = new HashMap<>();
 
-        for (String[] fila : files) { // 1a passada: crear-les totes
-            hexagons.put(fila[0], new Hexagon(fila[0]));
-        }
-        for (String[] fila : files) { // 2a passada: enllaçar amb el pare
-            if (!fila[1].isEmpty()) {
-                Hexagon pare = obtenir(hexagons, fila[1], "hexagons.csv");
-                pare.afegirFilla(hexagons.get(fila[0]));
+        // Preparar els terrenys i números a sortejar
+        List<TipusTerreny> terrenys = new ArrayList<>();
+        for (int i = 0; i < 4; i++)
+            terrenys.add(TipusTerreny.BOSC);
+        for (int i = 0; i < 4; i++)
+            terrenys.add(TipusTerreny.PASTURES);
+        for (int i = 0; i < 4; i++)
+            terrenys.add(TipusTerreny.CAMPS);
+        for (int i = 0; i < 3; i++)
+            terrenys.add(TipusTerreny.MUNTANYES);
+        for (int i = 0; i < 3; i++)
+            terrenys.add(TipusTerreny.TURONS); // TURONS? revisar
+        terrenys.add(TipusTerreny.DESERT);
+
+        List<Integer> numeros = new ArrayList<>(List.of(
+                2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12));
+
+        // Barrejar
+        Collections.shuffle(terrenys);
+        Collections.shuffle(numeros);
+
+        int indexTerreny = 0;
+        int indexNumero = 0;
+
+        for (String[] fila : files) {
+            int codi = Integer.parseInt(fila[0]);
+            int q = Integer.parseInt(fila[1]);
+            int r = Integer.parseInt(fila[2]);
+
+            Hexagon h = new Hexagon();
+            h.setCodi(codi);
+            h.setQ(q);
+            h.setR(r);
+
+            TipusTerreny terreny = terrenys.get(indexTerreny++);
+            h.setTipusTerreny(terreny);
+
+            if (terreny == TipusTerreny.DESERT) {
+                h.setNumero(null);
+            } else {
+                h.setNumero(numeros.get(indexNumero++));
             }
+
+            // NOTA: aquí falta assignar la partida!
+            // h.setPartida(partida);
+
+            session.persist(h);
+            hexagons.put(codi, h);
         }
-        for (Hexagon c : hexagons.values()) { // persist de les ARRELS: cascade a les filles
-            if (c.getPare() == null) {
-                session.persist(c);
-            }
-        }
+        System.out.println("Carregats " + hexagons.size() + " hexàgons.");
         return hexagons;
     }
 
-    private static List<String[]> llegirCsv(String nomFitxer) {
-        InputStream is = Main.class.getClassLoader().getResourceAsStream(CARPETA_CSV + nomFitxer);
-        if (is == null) {
-            throw new IllegalStateException("No s'ha trobat el fitxer " + CARPETA_CSV + nomFitxer);
+    private static void carregarHexagonVertex(Session session,
+            Map<Integer, Hexagon> hexagons,
+            Map<Integer, Vertex> vertexs) {
+        List<String[]> files = llegirCsv("hexagon_vertex.csv");
+        int contador = 0;
+
+        for (String[] fila : files) {
+            int codiHexagon = Integer.parseInt(fila[0]);
+            int codiVertex = Integer.parseInt(fila[1]);
+            int posicio = Integer.parseInt(fila[2]);
+
+            Hexagon h = hexagons.get(codiHexagon);
+            Vertex v = vertexs.get(codiVertex);
+
+            if (h == null)
+                throw new IllegalStateException(
+                        "Hexàgon no trobat: " + codiHexagon);
+            if (v == null)
+                throw new IllegalStateException(
+                        "Vèrtex no trobat: " + codiVertex);
+
+            HexagonVertex hv = new HexagonVertex();
+            hv.setHexagon(h);
+            hv.setVertex(v);
+            hv.setPosicio(posicio);
+
+            session.persist(hv);
+            contador++;
         }
+        System.out.println("Carregats " + contador + " HexagonVertex.");
+    }
+
+    private static void carregarArestes(Session session,
+            Map<Integer, Vertex> vertexs) {
+        List<String[]> files = llegirCsv("arestes.csv");
+        int contador = 0;
+
+        for (String[] fila : files) {
+            int codi = Integer.parseInt(fila[0]);
+            int codiA = Integer.parseInt(fila[1]);
+            int codiB = Integer.parseInt(fila[2]);
+
+            Vertex a = vertexs.get(codiA);
+            Vertex b = vertexs.get(codiB);
+
+            if (a == null)
+                throw new IllegalStateException(
+                        "Vèrtex A no trobat: " + codiA);
+            if (b == null)
+                throw new IllegalStateException(
+                        "Vèrtex B no trobat: " + codiB);
+
+            Aresta aresta = new Aresta();
+            aresta.setCodi(codi);
+            aresta.setVertexA(a);
+            aresta.setVertexB(b);
+
+            session.persist(aresta);
+            contador++;
+        }
+        System.out.println("Carregades " + contador + " arestes.");
+    }
+
+    private static List<String[]> llegirCsv(String nomFitxer) {
+        InputStream is = HibernateUtil.class.getClassLoader()
+                .getResourceAsStream(CARPETA_CSV + nomFitxer);
+        if (is == null) {
+            throw new IllegalStateException(
+                    "No s'ha trobat el fitxer " + CARPETA_CSV + nomFitxer);
+        }
+
         List<String[]> files = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String linia = br.readLine();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(is, StandardCharsets.UTF_8))) {
+
+            br.readLine();
+            String linia;
             while ((linia = br.readLine()) != null) {
                 if (!linia.isBlank()) {
                     String[] camps = linia.split(",", -1);
@@ -171,9 +238,8 @@ public class HibernateUtil {
                 }
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Error llegint el fitxer " + nomFitxer, e);
+            throw new IllegalStateException("Error llegint " + nomFitxer, e);
         }
         return files;
     }
-
 }

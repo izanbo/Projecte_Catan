@@ -27,4 +27,48 @@ public class Aresta {
     @ManyToOne(optional = false)
     @JoinColumn(name = "vertex_b_id", nullable = false)
     private Vertex vertexB;
+
+    public Aresta(int id, int codi, Vertex vertexA, Vertex vertexB) {
+        this.id = id;
+        this.codi = codi;
+        this.vertexA = vertexA;
+        this.vertexB = vertexB;
+    }
+
+    public Aresta() {
+        //TODO Auto-generated constructor stub
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getCodi() {
+        return codi;
+    }
+
+    public void setCodi(int codi) {
+        this.codi = codi;
+    }
+
+    public Vertex getVertexA() {
+        return vertexA;
+    }
+
+    public void setVertexA(Vertex vertexA) {
+        this.vertexA = vertexA;
+    }
+
+    public Vertex getVertexB() {
+        return vertexB;
+    }
+
+    public void setVertexB(Vertex vertexB) {
+        this.vertexB = vertexB;
+    }
+
 }

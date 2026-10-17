@@ -37,4 +37,64 @@ public class CartaDesenvolupament {
     @ManyToOne(optional = false)
     @JoinColumn(name = "partida_id", nullable = false)
     private Partida partida;
+
+    public CartaDesenvolupament(int id, TipusCarta tipus, boolean usada, Integer rondaCompra, Jugador jugador,
+            Partida partida) {
+        this.id = id;
+        this.tipus = tipus;
+        this.usada = usada;
+        this.rondaCompra = rondaCompra;
+        this.jugador = jugador;
+        this.partida = partida;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public TipusCarta getTipus() {
+        return tipus;
+    }
+
+    public void setTipus(TipusCarta tipus) {
+        this.tipus = tipus;
+    }
+
+    public boolean isUsada() {
+        return usada;
+    }
+
+    public void setUsada(boolean usada) {
+        this.usada = usada;
+    }
+
+    public Integer getRondaCompra() {
+        return rondaCompra;
+    }
+
+    public void setRondaCompra(Integer rondaCompra) {
+        this.rondaCompra = rondaCompra;
+    }
+
+    public Jugador getJugador() {
+        return jugador;
+    }
+
+    public void setJugador(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
+    }
+
+    
 }
