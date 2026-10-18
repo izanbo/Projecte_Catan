@@ -83,6 +83,10 @@ public class Partida {
         this.cartes = cartes;
     }
 
+    public Partida() {
+        
+    }
+
     public int getId() {
         return id;
     }

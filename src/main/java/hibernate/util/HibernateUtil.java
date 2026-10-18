@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,12 +20,17 @@ import hibernate.enums.TipusTerreny;
 import hibernate.model.Aresta;
 import hibernate.model.Hexagon;
 import hibernate.model.HexagonVertex;
+import hibernate.model.Partida;
 import hibernate.model.Vertex;
 
 public class HibernateUtil {
 
     private static final String CARPETA_CSV = "tauler/";
     private static final SessionFactory sessionFactory = buildSessionFactory();
+
+    // ------------------------------------------------------------
+    // SessionFactory
+    // ------------------------------------------------------------
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -45,15 +49,19 @@ public class HibernateUtil {
         getSessionFactory().close();
     }
 
-    public static void carregarDades() {
+    // ------------------------------------------------------------
+    // Càrrega del tauler des dels CSV (Opció A: rep la Partida)
+    // ------------------------------------------------------------
+
+    public static void carregarDades(Partida partida) {
         try (Session session = getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             try {
                 // 1) Vèrtexs (54)
                 Map<Integer, Vertex> vertexs = carregarVertexs(session);
 
-                // 2) Hexàgons (19)
-                Map<Integer, Hexagon> hexagons = carregarHexagons(session);
+                // 2) Hexàgons (19) -> necessiten la Partida
+                Map<Integer, Hexagon> hexagons = carregarHexagons(session, partida);
 
                 // 3) HexagonVertex (114) -> enllaça hexàgons i vèrtexs
                 carregarHexagonVertex(session, hexagons, vertexs);
@@ -73,6 +81,9 @@ public class HibernateUtil {
         }
     }
 
+    // ------------------------------------------------------------
+    // 1) Vertex
+    // ------------------------------------------------------------
     private static Map<Integer, Vertex> carregarVertexs(Session session) {
         List<String[]> files = llegirCsv("vertexs.csv");
         Map<Integer, Vertex> vertexs = new HashMap<>();
@@ -94,28 +105,26 @@ public class HibernateUtil {
         return vertexs;
     }
 
-    private static Map<Integer, Hexagon> carregarHexagons(Session session) {
+    // ------------------------------------------------------------
+    // 2) Hexagon (rep la Partida)
+    // ------------------------------------------------------------
+    private static Map<Integer, Hexagon> carregarHexagons(Session session, Partida partida) {
         List<String[]> files = llegirCsv("hexagons.csv");
         Map<Integer, Hexagon> hexagons = new HashMap<>();
 
-        // Preparar els terrenys i números a sortejar
+        // Terrenys: 4 BOSC, 4 PASTURES, 4 CAMPS, 3 TURONS, 3 MUNTANYES, 1 DESERT
         List<TipusTerreny> terrenys = new ArrayList<>();
-        for (int i = 0; i < 4; i++)
-            terrenys.add(TipusTerreny.BOSC);
-        for (int i = 0; i < 4; i++)
-            terrenys.add(TipusTerreny.PASTURES);
-        for (int i = 0; i < 4; i++)
-            terrenys.add(TipusTerreny.CAMPS);
-        for (int i = 0; i < 3; i++)
-            terrenys.add(TipusTerreny.MUNTANYES);
-        for (int i = 0; i < 3; i++)
-            terrenys.add(TipusTerreny.TURONS); // TURONS? revisar
+        for (int i = 0; i < 4; i++) terrenys.add(TipusTerreny.BOSC);
+        for (int i = 0; i < 4; i++) terrenys.add(TipusTerreny.PASTURES);
+        for (int i = 0; i < 4; i++) terrenys.add(TipusTerreny.CAMPS);
+        for (int i = 0; i < 3; i++) terrenys.add(TipusTerreny.TURONS);
+        for (int i = 0; i < 3; i++) terrenys.add(TipusTerreny.MUNTANYES);
         terrenys.add(TipusTerreny.DESERT);
 
+        // Números: 2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12
         List<Integer> numeros = new ArrayList<>(List.of(
                 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12));
 
-        // Barrejar
         Collections.shuffle(terrenys);
         Collections.shuffle(numeros);
 
@@ -141,8 +150,7 @@ public class HibernateUtil {
                 h.setNumero(numeros.get(indexNumero++));
             }
 
-            // NOTA: aquí falta assignar la partida!
-            // h.setPartida(partida);
+            h.setPartida(partida); // <-- Opción A
 
             session.persist(h);
             hexagons.put(codi, h);
@@ -151,9 +159,12 @@ public class HibernateUtil {
         return hexagons;
     }
 
+    // ------------------------------------------------------------
+    // 3) HexagonVertex
+    // ------------------------------------------------------------
     private static void carregarHexagonVertex(Session session,
-            Map<Integer, Hexagon> hexagons,
-            Map<Integer, Vertex> vertexs) {
+                                              Map<Integer, Hexagon> hexagons,
+                                              Map<Integer, Vertex> vertexs) {
         List<String[]> files = llegirCsv("hexagon_vertex.csv");
         int contador = 0;
 
@@ -165,12 +176,10 @@ public class HibernateUtil {
             Hexagon h = hexagons.get(codiHexagon);
             Vertex v = vertexs.get(codiVertex);
 
-            if (h == null)
-                throw new IllegalStateException(
-                        "Hexàgon no trobat: " + codiHexagon);
-            if (v == null)
-                throw new IllegalStateException(
-                        "Vèrtex no trobat: " + codiVertex);
+            if (h == null) throw new IllegalStateException(
+                    "Hexàgon no trobat: " + codiHexagon);
+            if (v == null) throw new IllegalStateException(
+                    "Vèrtex no trobat: " + codiVertex);
 
             HexagonVertex hv = new HexagonVertex();
             hv.setHexagon(h);
@@ -183,8 +192,11 @@ public class HibernateUtil {
         System.out.println("Carregats " + contador + " HexagonVertex.");
     }
 
+    // ------------------------------------------------------------
+    // 4) Aresta
+    // ------------------------------------------------------------
     private static void carregarArestes(Session session,
-            Map<Integer, Vertex> vertexs) {
+                                        Map<Integer, Vertex> vertexs) {
         List<String[]> files = llegirCsv("arestes.csv");
         int contador = 0;
 
@@ -196,12 +208,10 @@ public class HibernateUtil {
             Vertex a = vertexs.get(codiA);
             Vertex b = vertexs.get(codiB);
 
-            if (a == null)
-                throw new IllegalStateException(
-                        "Vèrtex A no trobat: " + codiA);
-            if (b == null)
-                throw new IllegalStateException(
-                        "Vèrtex B no trobat: " + codiB);
+            if (a == null) throw new IllegalStateException(
+                    "Vèrtex A no trobat: " + codiA);
+            if (b == null) throw new IllegalStateException(
+                    "Vèrtex B no trobat: " + codiB);
 
             Aresta aresta = new Aresta();
             aresta.setCodi(codi);
@@ -213,6 +223,10 @@ public class HibernateUtil {
         }
         System.out.println("Carregades " + contador + " arestes.");
     }
+
+    // ------------------------------------------------------------
+    // Lectura genèrica de CSV
+    // ------------------------------------------------------------
 
     private static List<String[]> llegirCsv(String nomFitxer) {
         InputStream is = HibernateUtil.class.getClassLoader()
@@ -226,7 +240,7 @@ public class HibernateUtil {
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
-            br.readLine();
+            br.readLine(); // saltar capçalera
             String linia;
             while ((linia = br.readLine()) != null) {
                 if (!linia.isBlank()) {

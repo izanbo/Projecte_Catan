@@ -7,7 +7,10 @@ import jakarta.persistence.Table;
 @Table(name = "poblat")
 public class Poblat extends Assentament {
 
-    public Poblat(int id, Jugador propietari) {
-        super(id, propietari);
+    public Poblat() {
+    }
+
+    public Poblat(Jugador propietari, Vertex vertex) {
+        super(propietari, vertex);
     }
 }

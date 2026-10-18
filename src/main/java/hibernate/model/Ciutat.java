@@ -7,7 +7,10 @@ import jakarta.persistence.Table;
 @Table(name = "ciutat")
 public class Ciutat extends Assentament {
 
-    public Ciutat(Jugador jugador, Vertex vertex) {
-        super(jugador, vertex);
+    public Ciutat() {
+    }
+
+    public Ciutat(Jugador propietari, Vertex vertex) {
+        super(propietari, vertex);
     }
 }

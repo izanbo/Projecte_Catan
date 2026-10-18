@@ -23,8 +23,10 @@ public abstract class Construccio {
     @JoinColumn(name = "propietari_id", nullable = false)
     private Jugador propietari;
 
-    public Construccio(int id, Jugador propietari) {
-        this.id = id;
+    public Construccio() {
+    }
+
+    public Construccio(Jugador propietari) {
         this.propietari = propietari;
     }
 
@@ -43,5 +45,4 @@ public abstract class Construccio {
     public void setPropietari(Jugador propietari) {
         this.propietari = propietari;
     }
-    
 }

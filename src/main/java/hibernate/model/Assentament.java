@@ -9,13 +9,17 @@ import jakarta.persistence.Table;
 @Table(name = "assentament")
 public abstract class Assentament extends Construccio {
 
-    public Assentament(int id, Jugador propietari) {
-        super(id, propietari);
-    }
-
     @OneToOne(optional = false)
     @JoinColumn(name = "vertex_id", nullable = false, unique = true)
     private Vertex vertex;
+
+    public Assentament() {
+    }
+
+    public Assentament(Jugador propietari, Vertex vertex) {
+        super(propietari);
+        this.vertex = vertex;
+    }
 
     public Vertex getVertex() {
         return vertex;

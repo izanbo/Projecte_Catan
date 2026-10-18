@@ -19,7 +19,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "jugador", uniqueConstraints = @UniqueConstraint(name = "uk_jugador_partida_color", columnNames = { "partida_id", "color" }))
+@Table(name = "jugador", uniqueConstraints = @UniqueConstraint(name = "uk_jugador_partida_color", columnNames = {
+        "partida_id", "color" }))
 public class Jugador {
 
     @Id
@@ -50,19 +51,19 @@ public class Jugador {
     private List<Construccio> construccions = new ArrayList<>();
 
     @OneToMany(mappedBy = "jugador")
-    private List<Carta> cartas = new ArrayList<>();
+    private List<CartaDesenvolupament> cartas = new ArrayList<>();
 
-    public Jugador(int id, String nom, ColorJugador color, int ordreTorn, int cavallersJugats, Partida partida,
-            List<RecursJugador> recursos, List<Construccio> construccions, List<Carta> cartas) {
-        this.id = id;
+    public Jugador() {
+    }
+
+    public Jugador(String nom, ColorJugador color, int ordreTorn, Partida partida) {
         this.nom = nom;
         this.color = color;
         this.ordreTorn = ordreTorn;
-        this.cavallersJugats = cavallersJugats;
         this.partida = partida;
-        this.recursos = recursos;
-        this.construccions = construccions;
-        this.cartas = cartas;
+        this.cavallersJugats = 0;
+        this.recursos = new ArrayList<>();
+        this.construccions = new ArrayList<>();
     }
 
     public int getId() {
@@ -129,14 +130,12 @@ public class Jugador {
         this.construccions = construccions;
     }
 
-    public List<Carta> getCartas() {
+    public List<CartaDesenvolupament> getCartas() {
         return cartas;
     }
 
-    public void setCartas(List<Carta> cartas) {
+    public void setCartas(List<CartaDesenvolupament> cartas) {
         this.cartas = cartas;
     }
 
-    
-    
 }
