@@ -28,4 +28,49 @@ public class HexagonVertex {
 
     @Column(nullable = false)
     private int posicio;
+
+    public HexagonVertex(int id, Hexagon hexagon, Vertex vertex, int posicio) {
+        this.id = id;
+        this.hexagon = hexagon;
+        this.vertex = vertex;
+        this.posicio = posicio;
+    }
+
+    public HexagonVertex() {
+        //TODO Auto-generated constructor stub
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Hexagon getHexagon() {
+        return hexagon;
+    }
+
+    public void setHexagon(Hexagon hexagon) {
+        this.hexagon = hexagon;
+    }
+
+    public Vertex getVertex() {
+        return vertex;
+    }
+
+    public void setVertex(Vertex vertex) {
+        this.vertex = vertex;
+    }
+
+    public int getPosicio() {
+        return posicio;
+    }
+
+    public void setPosicio(int posicio) {
+        this.posicio = posicio;
+    }
+
+    
 }

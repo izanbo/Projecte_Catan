@@ -31,4 +31,45 @@ public class RecursJugador {
 
     @Column(nullable = false)
     private int quantitat;
+
+    public RecursJugador(int id, Jugador jugador, TipusRecurs tipusRecurs, int quantitat) {
+        this.id = id;
+        this.jugador = jugador;
+        this.tipusRecurs = tipusRecurs;
+        this.quantitat = quantitat;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Jugador getJugador() {
+        return jugador;
+    }
+
+    public void setJugador(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
+    public TipusRecurs getTipusRecurs() {
+        return tipusRecurs;
+    }
+
+    public void setTipusRecurs(TipusRecurs tipusRecurs) {
+        this.tipusRecurs = tipusRecurs;
+    }
+
+    public int getQuantitat() {
+        return quantitat;
+    }
+
+    public void setQuantitat(int quantitat) {
+        this.quantitat = quantitat;
+    }
+
+    
 }

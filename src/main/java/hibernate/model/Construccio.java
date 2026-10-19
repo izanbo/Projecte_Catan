@@ -22,5 +22,27 @@ public abstract class Construccio {
     @ManyToOne(optional = false)
     @JoinColumn(name = "propietari_id", nullable = false)
     private Jugador propietari;
-    
+
+    public Construccio() {
+    }
+
+    public Construccio(Jugador propietari) {
+        this.propietari = propietari;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Jugador getPropietari() {
+        return propietari;
+    }
+
+    public void setPropietari(Jugador propietari) {
+        this.propietari = propietari;
+    }
 }

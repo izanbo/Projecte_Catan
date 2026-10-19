@@ -12,4 +12,20 @@ public class Carretera extends Construccio {
     @OneToOne(optional = false)
     @JoinColumn(name = "aresta_id", nullable = false, unique = true)
     private Aresta aresta;
+
+    public Carretera() {
+    }
+
+    public Carretera(Jugador propietari, Aresta aresta) {
+        super(propietari);
+        this.aresta = aresta;
+    }
+
+    public Aresta getAresta() {
+        return aresta;
+    }
+
+    public void setAresta(Aresta aresta) {
+        this.aresta = aresta;
+    }
 }

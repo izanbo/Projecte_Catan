@@ -19,7 +19,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "jugador", uniqueConstraints = @UniqueConstraint(name = "uk_jugador_partida_color", columnNames = { "partida_id", "color" }))
+@Table(name = "jugador", uniqueConstraints = @UniqueConstraint(name = "uk_jugador_partida_color", columnNames = {
+        "partida_id", "color" }))
 public class Jugador {
 
     @Id
@@ -49,6 +50,92 @@ public class Jugador {
     @OneToMany(mappedBy = "propietari")
     private List<Construccio> construccions = new ArrayList<>();
 
-    // Poner cartas mappedBy jugador
+    @OneToMany(mappedBy = "jugador")
+    private List<CartaDesenvolupament> cartas = new ArrayList<>();
+
+    public Jugador() {
+    }
+
+    public Jugador(String nom, ColorJugador color, int ordreTorn, Partida partida) {
+        this.nom = nom;
+        this.color = color;
+        this.ordreTorn = ordreTorn;
+        this.partida = partida;
+        this.cavallersJugats = 0;
+        this.recursos = new ArrayList<>();
+        this.construccions = new ArrayList<>();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public ColorJugador getColor() {
+        return color;
+    }
+
+    public void setColor(ColorJugador color) {
+        this.color = color;
+    }
+
+    public int getOrdreTorn() {
+        return ordreTorn;
+    }
+
+    public void setOrdreTorn(int ordreTorn) {
+        this.ordreTorn = ordreTorn;
+    }
+
+    public int getCavallersJugats() {
+        return cavallersJugats;
+    }
+
+    public void setCavallersJugats(int cavallersJugats) {
+        this.cavallersJugats = cavallersJugats;
+    }
+
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
+    }
+
+    public List<RecursJugador> getRecursos() {
+        return recursos;
+    }
+
+    public void setRecursos(List<RecursJugador> recursos) {
+        this.recursos = recursos;
+    }
+
+    public List<Construccio> getConstruccions() {
+        return construccions;
+    }
+
+    public void setConstruccions(List<Construccio> construccions) {
+        this.construccions = construccions;
+    }
+
+    public List<CartaDesenvolupament> getCartas() {
+        return cartas;
+    }
+
+    public void setCartas(List<CartaDesenvolupament> cartas) {
+        this.cartas = cartas;
+    }
 
 }
