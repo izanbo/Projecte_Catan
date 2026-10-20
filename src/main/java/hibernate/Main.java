@@ -12,7 +12,6 @@ import hibernate.util.HibernateUtil;
 
 public class Main {
     public static void main(String[] args) {
-        // Crear partida de prueba
         Partida partida = new Partida();
         partida.setEstat(EstatPartida.PREPARACIO);
         partida.setDataInici(Date.valueOf(LocalDate.now()));

@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,16 +17,21 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "hexagon")
+@Table(name = "hexagon", uniqueConstraints = @UniqueConstraint(columnNames = { "codi", "partida_id" }))
 public class Hexagon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // TODO: validacio: codi únic per partida
+    @Min(0)
     @Column(nullable = false)
     private int codi;
 
@@ -35,18 +41,23 @@ public class Hexagon {
     @Column(nullable = false)
     private int r;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "tipus_terreny", nullable = false)
     private TipusTerreny tipusTerreny;
 
+    @Min(2)
+    @Max(12)
     @Column(name = "numero")
     private Integer numero;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "partida_id", nullable = false)
+    @NotNull
     private Partida partida;
 
-    // Validar
+    @NotNull
+    @Size(min = 6, max = 6)
     @OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HexagonVertex> vertexs = new ArrayList<>();
 
@@ -63,7 +74,6 @@ public class Hexagon {
     }
 
     public Hexagon() {
-        //TODO Auto-generated constructor stub
     }
 
     public int getId() {
@@ -128,6 +138,24 @@ public class Hexagon {
 
     public void setVertexs(List<HexagonVertex> vertexs) {
         this.vertexs = vertexs;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Hexagon altre)) return false;
+        return getId() != 0 && getId() == altre.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Hexagon.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Hexagon{id=" + id + ", codi=" + codi + ", q=" + q + ", r=" + r + ", tipusTerreny="
+                + tipusTerreny + ", numero=" + numero + "}";
     }
 
 }

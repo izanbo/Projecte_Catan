@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(name = "vertex")
@@ -15,6 +16,7 @@ public class Vertex {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Min(0)
     @Column(nullable = false)
     private int codi;
 
@@ -64,6 +66,23 @@ public class Vertex {
 
     public void setY(double y) {
         this.y = y;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Vertex altre)) return false;
+        return getId() != 0 && getId() == altre.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Vertex.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Vertex{id=" + id + ", codi=" + codi + ", x=" + x + ", y=" + y + "}";
     }
 
 }

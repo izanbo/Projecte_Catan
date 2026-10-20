@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,6 +18,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "partida")
@@ -26,19 +30,25 @@ public class Partida {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstatPartida estat;
 
+    @NotNull
     @Column(name = "data_inici", nullable = false)
     private Date dataInici;
 
     @Column(nullable = false)
+    @Min(0)
     private int ronda;
 
+    @Min(0)
+    @Max(12)
     @Column(name = "ultima_tirada")
     private int ultimaTirada;
 
+    @Min(1)
     @Column(name = "punts_per_guanyar", nullable = false)
     private int puntsPerGuanyar;
 
@@ -48,11 +58,11 @@ public class Partida {
     @Column(name = "lladre", nullable = true)
     private boolean lladre;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guanyador_id", nullable = true)
     private Jugador guanyador;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jugador_actiu_id", nullable = true)
     private Jugador jugadorActiu;
 
@@ -65,9 +75,15 @@ public class Partida {
     @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartaDesenvolupament> cartes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vertex> vertexs = new ArrayList<>();
+
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Aresta> arestes = new ArrayList<>();
+
     public Partida(int id, EstatPartida estat, Date dataInici, int ronda, int ultimaTirada, int puntsPerGuanyar,
             boolean dausTirats, boolean lladre, Jugador guanyador, Jugador jugadorActiu, List<Jugador> jugadors,
-            List<Hexagon> hexagons, List<CartaDesenvolupament> cartes) {
+            List<Hexagon> hexagons, List<CartaDesenvolupament> cartes, List<Vertex> vertexs, List<Aresta> arestes) {
         this.id = id;
         this.estat = estat;
         this.dataInici = dataInici;
@@ -81,6 +97,8 @@ public class Partida {
         this.jugadors = jugadors;
         this.hexagons = hexagons;
         this.cartes = cartes;
+        this.vertexs = vertexs;
+        this.arestes = arestes;
     }
 
     public Partida() {
@@ -191,7 +209,46 @@ public class Partida {
         this.cartes = cartes;
     }
 
+    public List<Vertex> getVertexs() {
+        return vertexs;
+    }
+
+    public void setVertexs(List<Vertex> vertexs) {
+        this.vertexs = vertexs;
+    }
+
+    public List<Aresta> getArestes() {
+        return arestes;
+    }
+
+    public void setArestes(List<Aresta> arestes) {
+        this.arestes = arestes;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Partida altra)) return false;
+        return getId() != 0 && getId() == altra.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Partida.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Partida{id=" + id + ", estat=" + estat + ", dataInici=" + dataInici + ", ronda=" + ronda
+                + ", ultimaTirada=" + ultimaTirada + ", puntsPerGuanyar=" + puntsPerGuanyar + ", dausTirats="
+                + dausTirats + ", lladre=" + lladre + "}";
+    }
+
     public void IniciarPartida() {
+        inicialitzarValorsInicials();
+    }
+
+    private void inicialitzarValorsInicials() {
         this.estat = EstatPartida.PREPARACIO;
         this.dataInici = new Date(System.currentTimeMillis());
         this.ronda = 1;
