@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,6 +18,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "jugador", uniqueConstraints = @UniqueConstraint(name = "uk_jugador_partida_color", columnNames = {
@@ -27,30 +32,37 @@ public class Jugador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotBlank
+    @Size(max = 50)
     @Column(nullable = false, length = 50)
     private String nom;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ColorJugador color;
 
     @Column(name = "ordre_torn", nullable = false)
+    @Min(0)
     private int ordreTorn;
 
     @Column(name = "cavallers_jugats", nullable = false)
+    @Min(0)
     private int cavallersJugats;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "partida_id", nullable = false)
+    @NotNull
     private Partida partida;
 
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecursJugador> recursos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "propietari")
+    // Valorar cascade y orphanRemoval
+    @OneToMany(mappedBy = "propietari", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Construccio> construccions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "jugador")
+    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartaDesenvolupament> cartas = new ArrayList<>();
 
     public Jugador() {
@@ -136,6 +148,24 @@ public class Jugador {
 
     public void setCartas(List<CartaDesenvolupament> cartas) {
         this.cartas = cartas;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Jugador altre)) return false;
+        return getId() != 0 && getId() == altre.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Jugador.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Jugador{id=" + id + ", nom='" + nom + "', color=" + color + ", ordreTorn=" + ordreTorn
+                + ", cavallersJugats=" + cavallersJugats + "}";
     }
 
 }

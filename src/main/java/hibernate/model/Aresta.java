@@ -2,12 +2,14 @@ package hibernate.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(name = "aresta")
@@ -17,14 +19,15 @@ public class Aresta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Min(0)
     @Column(nullable = false)
     private int codi;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "vertex_a_id", nullable = false)
     private Vertex vertexA;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "vertex_b_id", nullable = false)
     private Vertex vertexB;
 
@@ -36,7 +39,6 @@ public class Aresta {
     }
 
     public Aresta() {
-        //TODO Auto-generated constructor stub
     }
 
     public int getId() {
@@ -69,6 +71,23 @@ public class Aresta {
 
     public void setVertexB(Vertex vertexB) {
         this.vertexB = vertexB;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Aresta altra)) return false;
+        return getId() != 0 && getId() == altra.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Aresta.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Aresta{id=" + id + ", codi=" + codi + "}";
     }
 
 }
