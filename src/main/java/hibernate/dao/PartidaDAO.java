@@ -2,14 +2,46 @@ package hibernate.dao;
 
 import java.util.List;
 
-import hibernate.model.Partida;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
-public class PartidaDAO extends GenericDAO<Partida, Integer> implements IPartidaDao{
+import hibernate.enums.ColorJugador;
+import hibernate.model.Jugador;
+import hibernate.model.Partida;
+import hibernate.util.HibernateUtil;
+
+public class PartidaDAO extends GenericDAO<Partida, Integer> implements IPartidaDao {
 
     @Override
     public int IniciarPartida(List<String> nomsJugadors) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'IniciarPartida'");
+
+        Session session = sessionFactory.getCurrentSession();
+        Transaction tx = session.beginTransaction();
+
+        try {
+            Partida partida = new Partida();
+            partida.IniciarPartida();
+
+            session.persist(partida);
+
+            ColorJugador[] colors = ColorJugador.values();
+            for (int i = 0; i < nomsJugadors.size(); i++) {
+                Jugador jugador = new Jugador(nomsJugadors.get(i), colors[i], i + 1, partida);
+                partida.addJugador(jugador);
+            }
+
+            partida.setJugadorActiu(partida.getJugadors().get(0));
+            HibernateUtil.carregarDades(session, partida);
+
+            int idPartida = partida.getId();
+            tx.commit();
+            return idPartida;
+        } catch (RuntimeException e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -41,5 +73,5 @@ public class PartidaDAO extends GenericDAO<Partida, Integer> implements IPartida
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'ComprovarVictoria'");
     }
-    
+
 }

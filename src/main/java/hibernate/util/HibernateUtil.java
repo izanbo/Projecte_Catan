@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import hibernate.enums.TipusTerreny;
@@ -53,32 +52,20 @@ public class HibernateUtil {
     // Càrrega del tauler des dels CSV (Opció A: rep la Partida)
     // ------------------------------------------------------------
 
-    public static void carregarDades(Partida partida) {
-        try (Session session = getSessionFactory().openSession()) {
-            Transaction tx = session.beginTransaction();
-            try {
-                // 1) Vèrtexs (54)
-                Map<Integer, Vertex> vertexs = carregarVertexs(session);
+    public static void carregarDades(Session session, Partida partida) {
+        // 1) Vèrtexs (54)
+        Map<Integer, Vertex> vertexs = carregarVertexs(session);
 
-                // 2) Hexàgons (19) -> necessiten la Partida
-                Map<Integer, Hexagon> hexagons = carregarHexagons(session, partida);
+        // 2) Hexàgons (19) -> necessiten la Partida
+        Map<Integer, Hexagon> hexagons = carregarHexagons(session, partida);
 
-                // 3) HexagonVertex (114) -> enllaça hexàgons i vèrtexs
-                carregarHexagonVertex(session, hexagons, vertexs);
+        // 3) HexagonVertex (114) -> enllaça hexàgons i vèrtexs
+        carregarHexagonVertex(session, hexagons, vertexs);
 
-                // 4) Arestes (72) -> enllaça dos vèrtexs
-                carregarArestes(session, vertexs);
+        // 4) Arestes (72) -> enllaça dos vèrtexs
+        carregarArestes(session, vertexs);
 
-                tx.commit();
-                System.out.println("Tauler carregat correctament!");
-            } catch (RuntimeException e) {
-                if (tx.isActive()) {
-                    tx.rollback();
-                }
-                System.err.println("Error durant la càrrega: " + e.getMessage());
-                throw e;
-            }
-        }
+        System.out.println("Tauler carregat correctament!");
     }
 
     // ------------------------------------------------------------
@@ -146,11 +133,12 @@ public class HibernateUtil {
 
             if (terreny == TipusTerreny.DESERT) {
                 h.setNumero(null);
+                partida.setHexagonLladre(h);
             } else {
                 h.setNumero(numeros.get(indexNumero++));
             }
 
-            h.setPartida(partida); // <-- Opción A
+            partida.addHexagon(h);
 
             session.persist(h);
             hexagons.put(codi, h);

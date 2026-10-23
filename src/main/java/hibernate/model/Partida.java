@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
@@ -55,8 +56,12 @@ public class Partida {
     @Column(name = "daus_tirats", nullable = false)
     private boolean dausTirats;
 
-    @Column(name = "lladre", nullable = true)
-    private boolean lladre;
+    @Column(name = "lladrePendent", nullable = true)
+    private boolean lladrePendent;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hexagon_lladre_id")
+    private Hexagon hexagonLladre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guanyador_id", nullable = true)
@@ -91,7 +96,7 @@ public class Partida {
         this.ultimaTirada = ultimaTirada;
         this.puntsPerGuanyar = puntsPerGuanyar;
         this.dausTirats = dausTirats;
-        this.lladre = lladre;
+        this.lladrePendent = lladre;
         this.guanyador = guanyador;
         this.jugadorActiu = jugadorActiu;
         this.jugadors = jugadors;
@@ -162,11 +167,11 @@ public class Partida {
     }
 
     public boolean isLladre() {
-        return lladre;
+        return lladrePendent;
     }
 
     public void setLladre(boolean lladre) {
-        this.lladre = lladre;
+        this.lladrePendent = lladre;
     }
 
     public Jugador getGuanyador() {
@@ -191,6 +196,24 @@ public class Partida {
 
     public void setJugadors(List<Jugador> jugadors) {
         this.jugadors = jugadors;
+    }
+
+    public Hexagon getHexagonLladre() {
+        return hexagonLladre;
+    }
+
+    public void setHexagonLladre(Hexagon hexagonLladre) {
+        this.hexagonLladre = hexagonLladre;
+    }
+
+    public void addJugador(Jugador j) {
+        this.jugadors.add(j);
+        j.setPartida(this);
+    }
+
+    public void addHexagon(Hexagon hexagon) {
+        this.hexagons.add(hexagon);
+        hexagon.setPartida(this);
     }
 
     public List<Hexagon> getHexagons() {
@@ -241,7 +264,7 @@ public class Partida {
     public String toString() {
         return "Partida{id=" + id + ", estat=" + estat + ", dataInici=" + dataInici + ", ronda=" + ronda
                 + ", ultimaTirada=" + ultimaTirada + ", puntsPerGuanyar=" + puntsPerGuanyar + ", dausTirats="
-                + dausTirats + ", lladre=" + lladre + "}";
+                + dausTirats + ", lladre=" + lladrePendent + "}";
     }
 
     public void IniciarPartida() {
@@ -253,8 +276,8 @@ public class Partida {
         this.dataInici = new Date(System.currentTimeMillis());
         this.ronda = 1;
         this.ultimaTirada = 0;
-        this.puntsPerGuanyar = 10; // Valor per defecte, es pot canviar segons les regles del joc
+        this.puntsPerGuanyar = 10;
         this.dausTirats = false;
-        this.lladre = false;
+        this.lladrePendent = false;
     }
 }
