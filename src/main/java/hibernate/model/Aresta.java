@@ -31,6 +31,10 @@ public class Aresta {
     @JoinColumn(name = "vertex_b_id", nullable = false)
     private Vertex vertexB;
 
+    @ManyToOne
+    @JoinColumn(name = "partida_id")
+    private Partida partida;
+
     public Aresta(int id, int codi, Vertex vertexA, Vertex vertexB) {
         this.id = id;
         this.codi = codi;
@@ -75,8 +79,10 @@ public class Aresta {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof Aresta altra)) return false;
+        if (this == object)
+            return true;
+        if (!(object instanceof Aresta altra))
+            return false;
         return getId() != 0 && getId() == altra.getId();
     }
 
