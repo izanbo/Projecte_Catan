@@ -10,7 +10,6 @@ import hibernate.enums.ColorJugador;
 import hibernate.model.Jugador;
 import hibernate.enums.TipusCarta;
 import hibernate.model.Assentament;
-import hibernate.model.Carretera;
 import hibernate.model.CartaDesenvolupament;
 import hibernate.model.Ciutat;
 import hibernate.model.Construccio;
