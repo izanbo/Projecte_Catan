@@ -8,6 +8,7 @@ import org.hibernate.query.Query;
 import hibernate.enums.EstatPartida;
 import hibernate.enums.TipusRecurs;
 import hibernate.enums.TipusTerreny;
+import hibernate.model.Ciutat;
 import hibernate.model.Jugador;
 import hibernate.model.Poblat;
 import hibernate.model.RecursJugador;
@@ -197,8 +198,55 @@ public class JugadorDao extends GenericDAO<Jugador, Integer> implements IJugador
 
     @Override
     public boolean MillorarACiutat(int idJugador, int idVertex) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'MillorarACiutat'");
+        Session session = sessionFactory.getCurrentSession();
+        try{
+            session.beginTransaction();
+            boolean resultat = MillorarACiutat(session, idJugador, idVertex);
+            session.getTransaction().commit();
+            return resultat;
+        }catch(RuntimeException e){
+            handleException(session, e);
+            return false;
+        }
+    }
+
+    private boolean MillorarACiutat(Session session, int idJugador, int idVertex){
+        Jugador jugador = session.get(Jugador.class, idJugador);
+        Vertex vertex = session.get(Vertex.class, idVertex);
+        if(jugador == null || vertex == null || jugador.getPartida().getEstat() == EstatPartida.FINALITZADA || jugador.getPartida().getJugadorActiu() == null || jugador.getPartida().getJugadorActiu().getId() != idJugador){
+            return false;
+        }
+
+        Long ciutats = session.createQuery("SELECT COUNT(c) FROM Ciutat c WHERE c.propietari.id = :idJugador", Long.class).setParameter("idJugador", idJugador).getSingleResult();
+
+        if(ciutats >= 4){
+            return false;
+        }
+
+        Poblat poblat = session.createQuery("SELECT p FROM Poblat p WHERE p.vertex.id = :idVertex AND p.propietari.id = :idJugador", Poblat.class).setParameter("idVertex", idVertex).setParameter("idJugador", idJugador).uniqueResultOptional().orElse(null);
+
+        if(poblat == null){
+            return false;
+        }
+
+        List<RecursJugador> recursos = session.createQuery("SELECT r FROM RecursJugador r WHERE r.jugador.id = :idJugador", RecursJugador.class).setParameter("idJugador", idJugador).getResultList();
+
+        RecursJugador ore = trobarRecurs(recursos, TipusRecurs.MINERAL);
+        RecursJugador blat = trobarRecurs(recursos, TipusRecurs.BLAT);
+
+        if(ore == null || ore.getQuantitat() < 3 || blat == null || blat.getQuantitat() < 2){
+            return false;
+        }
+
+        ore.setQuantitat(ore.getQuantitat() -3);
+        blat.setQuantitat(blat.getQuantitat() -2);
+
+        session.remove(poblat);
+        session.flush();
+
+        session.persist(new Ciutat(jugador, vertex));
+
+        return true;
     }
 
     @Override
