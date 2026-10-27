@@ -190,6 +190,14 @@ public class Partida {
         this.jugadorActiu = jugadorActiu;
     }
 
+    public Hexagon getLladre() {
+        return hexagonLladre;
+    }
+
+    public void setLladre(Hexagon lladre) {
+        this.hexagonLladre = lladre;
+    }
+
     public List<Jugador> getJugadors() {
         return jugadors;
     }
