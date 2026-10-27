@@ -15,7 +15,6 @@ import hibernate.model.Ciutat;
 import hibernate.model.Construccio;
 import hibernate.model.Hexagon;
 import hibernate.model.HexagonVertex;
-import hibernate.model.Jugador;
 import hibernate.model.Partida;
 import hibernate.util.HibernateUtil;
 import hibernate.model.Poblat;
