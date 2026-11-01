@@ -31,7 +31,7 @@ public class Aresta {
     @JoinColumn(name = "vertex_b_id", nullable = false)
     private Vertex vertexB;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partida_id")
     private Partida partida;
 
@@ -75,6 +75,14 @@ public class Aresta {
 
     public void setVertexB(Vertex vertexB) {
         this.vertexB = vertexB;
+    }
+
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
     }
 
     @Override

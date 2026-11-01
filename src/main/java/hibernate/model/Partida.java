@@ -56,11 +56,11 @@ public class Partida {
     @Column(name = "daus_tirats", nullable = false)
     private boolean dausTirats;
 
-    @Column(name = "lladrePendent", nullable = true)
+    @Column(name = "lladrePendent", nullable = false)
     private boolean lladrePendent;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hexagon_lladre_id")
+    @JoinColumn(name = "hexagon_lladre_id", nullable = true)
     private Hexagon hexagonLladre;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -107,7 +107,6 @@ public class Partida {
     }
 
     public Partida() {
-        
     }
 
     public int getId() {
@@ -166,6 +165,14 @@ public class Partida {
         this.dausTirats = dausTirats;
     }
 
+    public boolean isLladrePendent() {
+        return lladrePendent;
+    }
+
+    public void setLladrePendent(boolean lladrePendent) {
+        this.lladrePendent = lladrePendent;
+    }
+
     public boolean isLladre() {
         return lladrePendent;
     }
@@ -198,20 +205,20 @@ public class Partida {
         this.hexagonLladre = lladre;
     }
 
-    public List<Jugador> getJugadors() {
-        return jugadors;
-    }
-
-    public void setJugadors(List<Jugador> jugadors) {
-        this.jugadors = jugadors;
-    }
-
     public Hexagon getHexagonLladre() {
         return hexagonLladre;
     }
 
     public void setHexagonLladre(Hexagon hexagonLladre) {
         this.hexagonLladre = hexagonLladre;
+    }
+
+    public List<Jugador> getJugadors() {
+        return jugadors;
+    }
+
+    public void setJugadors(List<Jugador> jugadors) {
+        this.jugadors = jugadors;
     }
 
     public void addJugador(Jugador j) {
@@ -272,7 +279,7 @@ public class Partida {
     public String toString() {
         return "Partida{id=" + id + ", estat=" + estat + ", dataInici=" + dataInici + ", ronda=" + ronda
                 + ", ultimaTirada=" + ultimaTirada + ", puntsPerGuanyar=" + puntsPerGuanyar + ", dausTirats="
-                + dausTirats + ", lladre=" + lladrePendent + "}";
+                + dausTirats + ", lladrePendent=" + lladrePendent + "}";
     }
 
     public void IniciarPartida() {

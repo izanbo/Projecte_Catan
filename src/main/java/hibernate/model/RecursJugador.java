@@ -11,14 +11,25 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "recurs_jugador", uniqueConstraints = @UniqueConstraint(name = "uk_recurs_jugador_tipus", columnNames = { "jugador_id", "tipus_recurs" }))
+@NamedQueries({
+    @NamedQuery(
+        name = "RecursJugador.findByJugador",
+        query = "SELECT r FROM RecursJugador r WHERE r.jugador.id = :idJugador"
+    ),
+    @NamedQuery(
+        name = "RecursJugador.findByJugadorAndTipus",
+        query = "SELECT r FROM RecursJugador r WHERE r.jugador.id = :idJugador AND r.tipusRecurs = :tipus"
+    )
+})
 public class RecursJugador {
 
     @Id
@@ -36,9 +47,7 @@ public class RecursJugador {
     private TipusRecurs tipusRecurs;
 
     @Min(0)
-    @Max(19)
     @Column(nullable = false)
-    @Min(0)
     private int quantitat;
 
     public RecursJugador(int id, Jugador jugador, TipusRecurs tipusRecurs, int quantitat) {
@@ -100,5 +109,4 @@ public class RecursJugador {
         return "RecursJugador{id=" + id + ", tipusRecurs=" + tipusRecurs + ", quantitat=" + quantitat + "}";
     }
 
-    
 }

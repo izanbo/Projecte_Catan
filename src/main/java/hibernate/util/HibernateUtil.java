@@ -49,21 +49,21 @@ public class HibernateUtil {
     }
 
     // ------------------------------------------------------------
-    // Càrrega del tauler des dels CSV (Opció A: rep la Partida)
+    // Càrrega del tauler des dels CSV (rep la Partida)
     // ------------------------------------------------------------
 
     public static void carregarDades(Session session, Partida partida) {
-        // 1) Vèrtexs (54)
-        Map<Integer, Vertex> vertexs = carregarVertexs(session);
+        // 1) Vèrtexs (54) -> associats a la Partida
+        Map<Integer, Vertex> vertexs = carregarVertexs(session, partida);
 
-        // 2) Hexàgons (19) -> necessiten la Partida
+        // 2) Hexàgons (19) -> associats a la Partida
         Map<Integer, Hexagon> hexagons = carregarHexagons(session, partida);
 
         // 3) HexagonVertex (114) -> enllaça hexàgons i vèrtexs
         carregarHexagonVertex(session, hexagons, vertexs);
 
-        // 4) Arestes (72) -> enllaça dos vèrtexs
-        carregarArestes(session, vertexs);
+        // 4) Arestes (72) -> enllaça dos vèrtexs i associades a la Partida
+        carregarArestes(session, partida, vertexs);
 
         System.out.println("Tauler carregat correctament!");
     }
@@ -71,7 +71,7 @@ public class HibernateUtil {
     // ------------------------------------------------------------
     // 1) Vertex
     // ------------------------------------------------------------
-    private static Map<Integer, Vertex> carregarVertexs(Session session) {
+    private static Map<Integer, Vertex> carregarVertexs(Session session, Partida partida) {
         List<String[]> files = llegirCsv("vertexs.csv");
         Map<Integer, Vertex> vertexs = new HashMap<>();
 
@@ -84,6 +84,8 @@ public class HibernateUtil {
             v.setCodi(codi);
             v.setX(x);
             v.setY(y);
+            v.setPartida(partida);
+            partida.getVertexs().add(v);
 
             session.persist(v);
             vertexs.put(codi, v);
@@ -188,14 +190,14 @@ public class HibernateUtil {
         for (Hexagon h : hexagons.values()) {
             session.persist(h);
         }
-        
+
         System.out.println("Carregats " + contador + " HexagonVertex.");
     }
 
     // ------------------------------------------------------------
     // 4) Aresta
     // ------------------------------------------------------------
-    private static void carregarArestes(Session session,
+    private static void carregarArestes(Session session, Partida partida,
             Map<Integer, Vertex> vertexs) {
         List<String[]> files = llegirCsv("arestes.csv");
         int contador = 0;
@@ -219,6 +221,8 @@ public class HibernateUtil {
             aresta.setCodi(codi);
             aresta.setVertexA(a);
             aresta.setVertexB(b);
+            aresta.setPartida(partida);
+            partida.getArestes().add(aresta);
 
             session.persist(aresta);
             contador++;
