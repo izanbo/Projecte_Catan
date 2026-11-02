@@ -7,7 +7,6 @@ import org.hibernate.Session;
 
 import hibernate.dao.JugadorDao;
 import hibernate.dao.PartidaDAO;
-import hibernate.enums.EstatPartida;
 import hibernate.enums.TipusRecurs;
 import hibernate.model.Aresta;
 import hibernate.model.Jugador;
