@@ -10,6 +10,7 @@ import org.hibernate.Transaction;
 
 import hibernate.dao.JugadorDao;
 import hibernate.dao.PartidaDAO;
+import hibernate.enums.EstatPartida;
 import hibernate.enums.TipusCarta;
 import hibernate.enums.TipusRecurs;
 import hibernate.enums.TipusTerreny;
