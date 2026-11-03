@@ -3,6 +3,8 @@ package hibernate.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Check;
+
 import hibernate.enums.TipusTerreny;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,6 +28,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@Check(constraints = "numero IS NULL OR numero BETWEEN 2 AND 12")
 @Table(name = "hexagon", uniqueConstraints = @UniqueConstraint(columnNames = { "codi", "partida_id" }))
 @NamedQueries({
     @NamedQuery(

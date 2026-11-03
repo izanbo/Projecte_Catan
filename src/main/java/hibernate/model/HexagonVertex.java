@@ -1,5 +1,7 @@
 package hibernate.model;
 
+import org.hibernate.annotations.Check;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,6 +17,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Check(constraints = "posicio BETWEEN 0 AND 5")
 @Table(name = "hexagon_vertex", uniqueConstraints = @UniqueConstraint(name = "uk_hexagon_vertex_posicio", columnNames = { "hexagon_id", "posicio" }))
 public class HexagonVertex {
 
@@ -45,7 +48,6 @@ public class HexagonVertex {
     }
 
     public HexagonVertex() {
-        //TODO Auto-generated constructor stub
     }
 
     public int getId() {

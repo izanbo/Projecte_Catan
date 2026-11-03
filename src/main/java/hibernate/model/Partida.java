@@ -4,6 +4,8 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Check;
+
 import hibernate.enums.EstatPartida;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,6 +26,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Check(constraints = "punts_per_guanyar >= 1")
 @Table(name = "partida")
 public class Partida {
 

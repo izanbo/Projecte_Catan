@@ -1,5 +1,7 @@
 package hibernate.model;
 
+import org.hibernate.annotations.Check;
+
 import hibernate.enums.TipusRecurs;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +21,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Check(constraints = "quantitat >= 0")
 @Table(name = "recurs_jugador", uniqueConstraints = @UniqueConstraint(name = "uk_recurs_jugador_tipus", columnNames = { "jugador_id", "tipus_recurs" }))
 @NamedQueries({
     @NamedQuery(

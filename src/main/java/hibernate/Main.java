@@ -24,21 +24,15 @@ import hibernate.model.RecursJugador;
 import hibernate.model.Vertex;
 import hibernate.util.HibernateUtil;
 
-/**
- * Banc de proves i autoavaluació del projecte Catan (Hibernate).
- * Cada mètode testPasX_* cobreix un pas del "Guió de proves i autoavaluació".
- * Executa totes les comprovacions en ordre i imprimeix [PASS] o [FAIL] per
- * cadascuna.
- */
 public class Main {
 
         /** Comptadors globals de proves passades i fallades. */
         private static int testsPassed = 0;
         private static int testsFailed = 0;
+        // INICIO DIAGNOSTICO TEMPORAL
+        private static final List<String> failedTests = new ArrayList<>();
+        // FIN DIAGNOSTICO TEMPORAL
 
-        // =========================================================================
-        // PUNT D'ENTRADA
-        // =========================================================================
         public static void main(String[] args) {
                 titol("CATAN · HIBERNATE – BANC DE PROVES I AUTOAVALUACIÓ");
 
@@ -123,17 +117,6 @@ public class Main {
                         avaluar(false, "1.x", "Error executant Pas 1: " + e.getMessage());
                 }
 
-                // 1.3 Constraints CHECK de la BD (valors fora de rang han de ser rebutjats)
-                boolean c1 = rebutjatPerBD("UPDATE hexagon SET numero = 13 WHERE numero IS NOT NULL LIMIT 1",
-                                "hexagon.numero > 12");
-                boolean c2 = rebutjatPerBD("UPDATE hexagon_vertex SET posicio = 6 LIMIT 1",
-                                "hexagon_vertex.posicio > 5");
-                boolean c3 = rebutjatPerBD("UPDATE recurs_jugador SET quantitat = -1 LIMIT 1",
-                                "recurs_jugador.quantitat < 0");
-                boolean c4 = rebutjatPerBD("UPDATE partida SET punts_per_guanyar = 0 LIMIT 1",
-                                "partida.punts_per_guanyar < 1");
-                avaluar(c1 && c2 && c3 && c4, "1.3",
-                                "BD rebutja valors fora de rang: numero>12, posicio>5, quantitat<0, punts_per_guanyar<1");
         }
 
         /**
@@ -272,12 +255,26 @@ public class Main {
 
                 tx.commit();
 
+                // --- 1.3 Constraints CHECK: ja hi ha files per comprovar ---
+                boolean c1 = rebutjatPerBD("UPDATE hexagon SET numero = 13 WHERE numero IS NOT NULL LIMIT 1",
+                                "hexagon.numero > 12");
+                boolean c2 = rebutjatPerBD("UPDATE hexagon_vertex SET posicio = 6 LIMIT 1",
+                                "hexagon_vertex.posicio > 5");
+                boolean c3 = rebutjatPerBD("UPDATE recurs_jugador SET quantitat = -1 LIMIT 1",
+                                "recurs_jugador.quantitat < 0");
+                boolean c4 = rebutjatPerBD("UPDATE partida SET punts_per_guanyar = 0 WHERE id = " + idPartida,
+                                "partida.punts_per_guanyar < 1");
+                avaluar(c1 && c2 && c3 && c4, "1.3",
+                                "BD rebutja valors fora de rang: numero>12, posicio>5, quantitat<0, punts_per_guanyar<1");
+
                 // --- 2.7 Segona partida: duplicació i IDs autogenerats ---
                 int idP2 = dao.IniciarPartida(List.of("David", "Elena"));
                 s = HibernateUtil.getSessionFactory().getCurrentSession();
                 tx = s.beginTransaction();
-                long total2 = s.createQuery("SELECT COUNT(h) FROM Hexagon h", Long.class).getSingleResult();
-                Hexagon h0p2 = s.createQuery("SELECT h FROM Hexagon h WHERE h.partida.id=:p AND h.codi=0",
+                long total2 = s.createQuery(
+                                "SELECT COUNT(h) FROM Hexagon h WHERE h.partida.id IN (:p1, :p2)", Long.class)
+                                .setParameter("p1", idPartida).setParameter("p2", idP2).getSingleResult();
+                Hexagon h0p2 = s.createQuery("SELECT h FROM Hexagon h WHERE h.partida.id=:p AND h.codi=1",
                                 Hexagon.class)
                                 .setParameter("p", idP2).getSingleResult();
                 boolean dup = (total2 == 38) && (h0p2.getId() != h0p2.getCodi());
@@ -827,6 +824,9 @@ public class Main {
                 } else {
                         testsFailed++;
                         System.err.printf("  [FAIL] %-6s %s%n", "[" + criteri + "]", desc);
+                        // INICIO DIAGNOSTICO TEMPORAL
+                        failedTests.add("[" + criteri + "] " + desc);
+                        // FIN DIAGNOSTICO TEMPORAL
                 }
         }
 
@@ -856,6 +856,10 @@ public class Main {
                         System.out.println("  [EXCEL·LENT] Totes les proves han passat!");
                 } else {
                         System.out.printf("  [ATENCIÓ] %d prova/es requereixen revisió.%n", testsFailed);
+                        // INICIO DIAGNOSTICO TEMPORAL
+                        System.err.println("  DETALL DE PROVES FALLIDES:");
+                        failedTests.forEach(fallada -> System.err.println("  - " + fallada));
+                        // FIN DIAGNOSTICO TEMPORAL
                 }
                 System.out.println("=".repeat(72) + "\n");
         }
