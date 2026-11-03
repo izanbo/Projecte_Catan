@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import hibernate.enums.EstatPartida;
 import hibernate.enums.TipusCarta;
 import hibernate.enums.TipusRecurs;
 import hibernate.enums.TipusTerreny;
 import hibernate.model.Aresta;
-import hibernate.model.Assentament;
 import hibernate.model.Carretera;
 import hibernate.model.Ciutat;
 import hibernate.model.Hexagon;
