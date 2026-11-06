@@ -3,6 +3,8 @@ package hibernate.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Check;
+
 import hibernate.enums.TipusTerreny;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +17,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -24,7 +28,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@Check(constraints = "numero IS NULL OR numero BETWEEN 2 AND 12")
 @Table(name = "hexagon", uniqueConstraints = @UniqueConstraint(columnNames = { "codi", "partida_id" }))
+@NamedQueries({
+    @NamedQuery(
+        name = "Hexagon.findByPartidaAndNumero",
+        query = "SELECT h FROM Hexagon h WHERE h.partida.id = :idPartida AND h.numero = :numero"
+    ),
+    @NamedQuery(
+        name = "Hexagon.findByPartidaAndNumeroSenseLladre",
+        query = "SELECT h FROM Hexagon h WHERE h.partida.id = :idPartida AND h.numero = :numero AND h.id <> :idLladre"
+    )
+})
 public class Hexagon {
 
     @Id

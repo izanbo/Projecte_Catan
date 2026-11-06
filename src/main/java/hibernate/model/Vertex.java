@@ -75,6 +75,14 @@ public class Vertex {
         this.y = y;
     }
 
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object)

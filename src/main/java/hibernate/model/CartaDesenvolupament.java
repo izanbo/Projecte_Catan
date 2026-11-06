@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "carta_desenvolupament")
@@ -22,24 +23,37 @@ public class CartaDesenvolupament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipusCarta tipus;
 
     @Column(nullable = false)
     private boolean usada;
-    
+
     @Min(0)
-    @Column(name = "ronda_compra", nullable = false)
+    @Column(name = "ronda_compra", nullable = true)
     private Integer rondaCompra;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "jugador_id")
+    @JoinColumn(name = "jugador_id", nullable = true)
     private Jugador jugador;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "partida_id", nullable = false)
+    @NotNull
     private Partida partida;
+
+    public CartaDesenvolupament() {
+    }
+
+    public CartaDesenvolupament(TipusCarta tipus, Partida partida) {
+        this.tipus = tipus;
+        this.partida = partida;
+        this.usada = false;
+        this.rondaCompra = null;
+        this.jugador = null;
+    }
 
     public CartaDesenvolupament(int id, TipusCarta tipus, boolean usada, Integer rondaCompra, Jugador jugador,
             Partida partida) {
@@ -117,5 +131,4 @@ public class CartaDesenvolupament {
                 + rondaCompra + "}";
     }
 
-    
 }
